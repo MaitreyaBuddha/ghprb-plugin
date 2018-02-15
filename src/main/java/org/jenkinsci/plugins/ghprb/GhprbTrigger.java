@@ -135,7 +135,7 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
 
     private String excludedRegions;
 
-    private final Boolean reportSuccessIfNotRegion;
+    private Boolean reportSuccessIfNotRegion;
 
 
     private transient Ghprb helper;
@@ -666,6 +666,9 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
     }
 
     public Boolean getReportSuccessIfNotRegion() {
+        if (reportSuccessIfNotRegion == null) {
+            return false;
+        }
         return reportSuccessIfNotRegion;
     }
 
