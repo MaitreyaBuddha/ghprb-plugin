@@ -135,6 +135,8 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
 
     private String excludedRegions;
 
+    private final Boolean reportSuccessIfNotRegion;
+
 
     private transient Ghprb helper;
 
@@ -198,7 +200,8 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
                         String whiteListLabels,
                         List<GhprbExtension> extensions,
                         String includedRegions,
-                        String excludedRegions
+                        String excludedRegions,
+                        Boolean reportSuccessIfNotRegion
     ) throws ANTLRException {
         super(cron);
         this.adminlist = adminlist;
@@ -222,6 +225,7 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
         this.whiteListLabels = whiteListLabels;
         this.includedRegions = includedRegions;
         this.excludedRegions = excludedRegions;
+        this.reportSuccessIfNotRegion = reportSuccessIfNotRegion;
         setExtensions(extensions);
         configVersion = LATEST_VERSION;
     }
@@ -659,6 +663,10 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
             return "";
         }
         return excludedRegions;
+    }
+
+    public Boolean getReportSuccessIfNotRegion() {
+        return reportSuccessIfNotRegion;
     }
 
     @Override
