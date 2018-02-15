@@ -9,6 +9,7 @@ import org.jenkinsci.plugins.ghprb.extensions.GhprbCommitStatusException;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbExtension;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbExtensionDescriptor;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbProjectExtension;
+import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -40,6 +41,12 @@ public class GhprbNoCommitStatus extends GhprbExtension implements GhprbCommitSt
             int prId,
             GHRepository ghRepository
     ) throws GhprbCommitStatusException {
+
+    }
+
+    public void createCommitStatus(
+            Job<?, ?> project, int prId, String commitSha, GHCommitState state, GHRepository ghRepository, String message)
+            throws GhprbCommitStatusException {
 
     }
 
