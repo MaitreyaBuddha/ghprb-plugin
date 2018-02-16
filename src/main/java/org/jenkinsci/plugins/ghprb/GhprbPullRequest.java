@@ -517,7 +517,7 @@ public class GhprbPullRequest {
         }
     }
 
-    private void tryBuild() {
+    void tryBuild() {
         synchronized (this) {
             if (helper.isProjectDisabled()) {
                 LOGGER.log(Level.FINEST, "Project is disabled, not trying to build");
@@ -696,7 +696,7 @@ public class GhprbPullRequest {
         return mergeable;
     }
 
-    private void skipBuildForWatchedPaths() {
+    void skipBuildForWatchedPaths() {
         if (helper.getReportSuccessIfNotRegion()) {
             LOGGER.log(Level.FINEST, "Pull request contains no watched paths, skipping the build and reporting success.");
             createCommitStatus(GHCommitState.SUCCESS, "Skipped, no pertinent files changed.");
