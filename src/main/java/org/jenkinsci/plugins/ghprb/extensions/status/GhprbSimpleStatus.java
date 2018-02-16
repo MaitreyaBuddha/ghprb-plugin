@@ -285,7 +285,7 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         context = Ghprb.replaceMacros(project, context);
 
         String url = Ghprb.replaceMacros(project, statusUrl);
-        if (StringUtils.equals(statusUrl, "--none--")) {
+        if (StringUtils.equals(statusUrl, "--none--") || StringUtils.equals(statusUrl, "Jenkins")) {
             url = "";
         }
 
