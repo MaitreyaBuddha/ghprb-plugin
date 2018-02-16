@@ -698,9 +698,7 @@ public class GhprbPullRequest {
 
     private void skipBuildForWatchedPaths() {
         if (helper.getReportSuccessIfNotRegion()) {
-            LOGGER.log(Level.FINEST,
-                    "Pull request contains no watched paths,"
-                            + " skipping the build and reporting success.");
+            LOGGER.log(Level.FINEST, "Pull request contains no watched paths, skipping the build and reporting success.");
             createCommitStatus(GHCommitState.SUCCESS, "Skipped, no pertinent files changed.");
         } else {
             LOGGER.log(Level.FINEST,
@@ -715,13 +713,7 @@ public class GhprbPullRequest {
         for (GhprbExtension ext : Ghprb.getJobExtensions(trigger, GhprbCommitStatus.class)) {
             if (ext instanceof GhprbCommitStatus) {
                 try {
-                    ((GhprbCommitStatus) ext).createCommitStatus(
-                            actualProject,
-                            id,
-                            head,
-                            state,
-                            ghRepository,
-                            message);
+                    ((GhprbCommitStatus) ext).createCommitStatus(actualProject, id, head, state, ghRepository, message);
                 } catch (GhprbCommitStatusException e) {
                     repo.commentOnFailure(null, null, e);
                 }

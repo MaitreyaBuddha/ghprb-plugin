@@ -45,14 +45,12 @@ public class GhprbSimpleStatusTest extends org.jenkinsci.plugins.ghprb.extension
     @Test
     public void testCreateCommitStatus() throws Exception {
         given(ghprbPullRequest.getHead()).willReturn("sha");
-        given(ghprbPullRequest.isMergeable()).willReturn(true);
 
         GhprbSimpleStatus status = spy(new GhprbSimpleStatus("default"));
         status.createCommitStatus(trigger.getActualProject(), 1, "sha", GHCommitState.SUCCESS, ghRepository, "msg");
 
         verify(ghRepository).createCommitStatus(eq("sha"), eq(GHCommitState.SUCCESS), eq(""), eq("msg"), eq("default"));
         verifyNoMoreInteractions(ghRepository);
-
         verifyNoMoreInteractions(ghprbPullRequest);
     }
 

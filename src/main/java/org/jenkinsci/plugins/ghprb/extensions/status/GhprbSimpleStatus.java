@@ -135,7 +135,6 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         }
 
         String message = sb.toString();
-
         createCommitStatus(project, prId, commitSha, state, ghRepository, message);
     }
 
@@ -285,6 +284,7 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         context = Ghprb.replaceMacros(project, context);
 
         String url = Ghprb.replaceMacros(project, statusUrl);
+        // "--none--" means the user does not want a message, "Jenkins" is the default when we don't have a URL.
         if (StringUtils.equals(statusUrl, "--none--") || StringUtils.equals(statusUrl, "Jenkins")) {
             url = "";
         }
