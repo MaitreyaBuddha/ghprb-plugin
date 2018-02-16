@@ -701,7 +701,7 @@ public class GhprbPullRequest {
             LOGGER.log(Level.FINEST,
                     "Pull request contains no watched paths,"
                             + " skipping the build and reporting success.");
-            createCommitStatus(GHCommitState.SUCCESS, "Skipped, no pertinent files found.");
+            createCommitStatus(GHCommitState.SUCCESS, "Skipped, no pertinent files changed.");
         } else {
             LOGGER.log(Level.FINEST,
                     "Pull request contains no watched paths, skipping the build");
