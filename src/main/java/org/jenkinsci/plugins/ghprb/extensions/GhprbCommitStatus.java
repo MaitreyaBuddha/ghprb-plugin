@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.ghprb.extensions;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 
 public interface GhprbCommitStatus {
@@ -14,4 +15,7 @@ public interface GhprbCommitStatus {
     void onBuildStart(Run<?, ?> build, TaskListener listener, GHRepository repo) throws GhprbCommitStatusException;
 
     void onBuildComplete(Run<?, ?> build, TaskListener listener, GHRepository repo) throws GhprbCommitStatusException;
+
+    void createCommitStatus(Job<?, ?> project, int prId, String commitSha, GHCommitState state, GHRepository ghRepository, String message)
+            throws GhprbCommitStatusException;
 }
