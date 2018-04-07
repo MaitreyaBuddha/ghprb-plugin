@@ -228,15 +228,15 @@ public class GhprbSimpleStatus extends GhprbExtension implements
                 sb.append(buildManager.getOneLineTestResults());
             }
             if (getAddCoverageResults()) {
+                if (getAddTestResults()) {
+                    sb.append(" ");
+                }
                 listener.getLogger().println("Adding coverage results to commit status...");
                 Map<String, String> envVars = Ghprb.getEnvVars(build, listener);
-                if (!envVars.containsKey("newCodeCommitPercentage")) {
-                    sb.append("No test results found.");
+                if (!envVars.containsKey("newCodeCoveragePercentage")) {
+                    sb.append("No coverage results found.");
                 } else {
-                    if (getAddTestResults()) {
-                        sb.append(" ");
-                    }
-                    sb.append(Integer.parseInt(envVars.get("newCodeCommitPercentage")));
+                    sb.append(Integer.parseInt(envVars.get("newCodeCoveragePercentage")));
                     sb.append("% line coverage on new code.");
                 }
             }
