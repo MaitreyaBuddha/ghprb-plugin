@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.ghprb.Ghprb;
 import org.jenkinsci.plugins.ghprb.GhprbCause;
 import org.jenkinsci.plugins.ghprb.GhprbTrigger;
-import org.jenkinsci.plugins.ghprb.extensions.GhprbCommitStatus;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbCommitStatusException;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbExtension;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbExtensionDescriptor;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GhprbSimpleStatus extends GhprbExtension implements
-        GhprbCommitStatus, GhprbGlobalExtension, GhprbProjectExtension, GhprbGlobalDefault {
+        GhprbGlobalExtension, GhprbProjectExtension, GhprbGlobalDefault {
 
     @Extension
     public static final DescriptorImpl /*GhprbSimpleStatusDescriptor*/ DESCRIPTOR = new DescriptorImpl();
@@ -108,7 +107,6 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         return true;
     }
 
-    @Override
     public void onBuildTriggered(Job<?, ?> project,
                                  String commitSha,
                                  boolean isMergeable,
@@ -138,7 +136,6 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         createCommitStatus(project, prId, commitSha, state, ghRepository, message);
     }
 
-    @Override
     public void onEnvironmentSetup(Run<?, ?> build,
                                    TaskListener listener,
                                    GHRepository repo) throws GhprbCommitStatusException {
@@ -146,7 +143,6 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         // soon and will respect's the user's settings for startedStatus.
     }
 
-    @Override
     public void onBuildStart(Run<?, ?> build,
                              TaskListener listener,
                              GHRepository repo) throws GhprbCommitStatusException {
