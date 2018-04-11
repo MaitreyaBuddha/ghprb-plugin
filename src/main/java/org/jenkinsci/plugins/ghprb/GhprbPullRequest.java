@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import hudson.model.Job;
 import hudson.model.Run;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.ghprb.extensions.GhprbCommitStatus;
+import org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbCommitStatusException;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbExtension;
 import org.kohsuke.github.GHCommitPointer;
@@ -710,10 +710,10 @@ public class GhprbPullRequest {
         GHRepository ghRepository = repo.getGitHubRepo();
         GhprbTrigger trigger = helper.getTrigger();
         Job<?, ?> actualProject = trigger.getActualProject();
-        for (GhprbExtension ext : Ghprb.getJobExtensions(trigger, GhprbCommitStatus.class)) {
-            if (ext instanceof GhprbCommitStatus) {
+        for (GhprbExtension ext : Ghprb.getJobExtensions(trigger, GhprbSimpleStatus.class)) {
+            if (ext instanceof GhprbSimpleStatus) {
                 try {
-                    ((GhprbCommitStatus) ext).createCommitStatus(actualProject, id, head, state, ghRepository, message);
+                    ((GhprbSimpleStatus) ext).createCommitStatus(actualProject, id, head, state, ghRepository, message);
                 } catch (GhprbCommitStatusException e) {
                     repo.commentOnFailure(null, null, e);
                 }
