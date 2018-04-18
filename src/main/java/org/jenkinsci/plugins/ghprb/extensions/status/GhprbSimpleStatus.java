@@ -224,17 +224,24 @@ public class GhprbSimpleStatus extends GhprbExtension implements
                 sb.append(buildManager.getOneLineTestResults());
             }
             if (getAddCoverageResults()) {
-                if (getAddTestResults()) {
-                    sb.append(" ");
-                }
                 listener.getLogger().println("Adding coverage results to commit status...");
+
+                String coverageResultString;
+                GHCommitState coverageState;
                 Map<String, String> envVars = Ghprb.getEnvVars(build, listener);
                 if (!envVars.containsKey("newCodeCoveragePercentage")) {
-                    sb.append("No coverage results found.");
+                    coverageResultString = "No coverage results found.";
+                    coverageState = GHCommitState.SUCCESS;
                 } else {
-                    sb.append(Integer.parseInt(envVars.get("newCodeCoveragePercentage")));
-                    sb.append("% line coverage on new code.");
+                    String newCodeCoveragePercentage = envVars.get("newCodeCoveragePercentage");
+                    coverageResultString = newCodeCoveragePercentage + "% line coverage on new code.";
+                    int coveragePercent = Integer.parseInt(newCodeCoveragePercentage);
+                    coverageState = coveragePercent > 1 ? GHCommitState.SUCCESS : GHCommitState.ERROR;
                 }
+
+                String context = Util.fixEmpty(commitStatusContext);
+                context = Ghprb.replaceMacros(build, listener, context) + " Coverage";
+                createCommitStatus(build, listener, coverageResultString, repo, coverageState, context);
             }
         }
 
@@ -245,7 +252,8 @@ public class GhprbSimpleStatus extends GhprbExtension implements
                                     TaskListener listener,
                                     String message,
                                     GHRepository repo,
-                                    GHCommitState state) throws GhprbCommitStatusException {
+                                    GHCommitState state,
+                                    String context) throws GhprbCommitStatusException {
 
         Map<String, String> envVars = Ghprb.getEnvVars(build, listener);
 
@@ -266,9 +274,6 @@ public class GhprbSimpleStatus extends GhprbExtension implements
             url = Ghprb.replaceMacros(build, listener, statusUrl);
         }
 
-        String context = Util.fixEmpty(commitStatusContext);
-        context = Ghprb.replaceMacros(build, listener, context);
-
         listener.getLogger().println(String.format("Setting status of %s to %s with url %s and message: '%s'",
                 sha1,
                 state,
@@ -284,6 +289,16 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         } catch (IOException e) {
             throw new GhprbCommitStatusException(e, state, message, pullId);
         }
+    }
+
+    private void createCommitStatus(Run<?, ?> build,
+                                    TaskListener listener,
+                                    String message,
+                                    GHRepository repo,
+                                    GHCommitState state) throws GhprbCommitStatusException {
+        String context = Util.fixEmpty(commitStatusContext);
+        context = Ghprb.replaceMacros(build, listener, context);
+        createCommitStatus(build, listener, message, repo, state, context);
     }
 
     public void createCommitStatus(Job<?, ?> project,
