@@ -107,7 +107,7 @@ public class GhprbSimpleStatusTest extends org.jenkinsci.plugins.ghprb.extension
         given(ghprbPullRequest.isMergeable()).willReturn(false);
 
         GhprbSimpleStatus globalStatus =
-                new GhprbSimpleStatus(true, context, statusUrl, "test1", "test2", false, false, new ArrayList<GhprbBuildResultMessage>(0));
+                new GhprbSimpleStatus(true, context, statusUrl, "test1", "test2", false, null, new ArrayList<GhprbBuildResultMessage>(0));
         GhprbTrigger.getDscp().getExtensions().add(globalStatus);
 
         GhprbSimpleStatus status = new GhprbSimpleStatus("");

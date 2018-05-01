@@ -20,7 +20,7 @@ class GhprbUpstreamStatusContext implements Context {
 
     Boolean addTestResults;
 
-    Boolean addCoverageResults;
+    String coverageResultFilePath;
 
     List<GhprbBuildResultMessage> completedStatus = new ArrayList<GhprbBuildResultMessage>();
 
@@ -74,10 +74,10 @@ class GhprbUpstreamStatusContext implements Context {
     }
 
     /**
-     * Add the coverage results if available.
+     * Get coverage result from file and display in status check if available.
      */
-    void addCoverageResults(Boolean addCoverageResults) {
-        this.addCoverageResults = addCoverageResults;
+    void coverageResultFilePath(String coverageResultFilePath) {
+        this.coverageResultFilePath = coverageResultFilePath;
     }
 
     /**

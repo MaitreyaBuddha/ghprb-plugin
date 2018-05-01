@@ -1,8 +1,10 @@
 package org.jenkinsci.plugins.ghprb.extensions.status;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Util;
 import hudson.matrix.MatrixProject;
+import hudson.model.Build;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -24,11 +26,18 @@ import org.jenkinsci.plugins.ghprb.manager.factory.GhprbBuildManagerFactoryUtil;
 import org.kohsuke.github.GHCommitState;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.xml.sax.InputSource;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 
 public class GhprbSimpleStatus extends GhprbExtension implements
         GhprbGlobalExtension, GhprbProjectExtension, GhprbGlobalDefault {
@@ -48,16 +57,17 @@ public class GhprbSimpleStatus extends GhprbExtension implements
 
     private final Boolean addTestResults;
 
-    private final Boolean addCoverageResults;
+    private final String coverageResultFilePath;
 
     private final List<GhprbBuildResultMessage> completedStatus;
+
 
     public GhprbSimpleStatus() {
         this(null);
     }
 
     public GhprbSimpleStatus(String commitStatusContext) {
-        this(false, commitStatusContext, null, null, null, false, false, new ArrayList<GhprbBuildResultMessage>(0));
+        this(false, commitStatusContext, null, null, null, false, null, new ArrayList<GhprbBuildResultMessage>(0));
     }
 
     @DataBoundConstructor
@@ -67,7 +77,7 @@ public class GhprbSimpleStatus extends GhprbExtension implements
                              String triggeredStatus,
                              String startedStatus,
                              Boolean addTestResults,
-                             Boolean addCoverageResults,
+                             String coverageResultFilePath,
                              List<GhprbBuildResultMessage> completedStatus) {
         this.showMatrixStatus = showMatrixStatus;
         this.statusUrl = statusUrl;
@@ -75,7 +85,7 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         this.triggeredStatus = triggeredStatus;
         this.startedStatus = startedStatus;
         this.addTestResults = addTestResults;
-        this.addCoverageResults = addCoverageResults;
+        this.coverageResultFilePath = coverageResultFilePath;
         this.completedStatus = completedStatus;
     }
 
@@ -103,8 +113,8 @@ public class GhprbSimpleStatus extends GhprbExtension implements
         return addTestResults == null ? Boolean.valueOf(false) : addTestResults;
     }
 
-    public Boolean getAddCoverageResults() {
-        return addCoverageResults == null ? Boolean.valueOf(false) : addCoverageResults;
+    public String getCoverageResultFilePath() {
+        return coverageResultFilePath == null ? "" : coverageResultFilePath;
     }
 
     public List<GhprbBuildResultMessage> getCompletedStatus() {
@@ -223,29 +233,61 @@ public class GhprbSimpleStatus extends GhprbExtension implements
                 listener.getLogger().println("Adding one-line test results to commit status...");
                 sb.append(buildManager.getOneLineTestResults());
             }
-            if (getAddCoverageResults()) {
+
+            if (!getCoverageResultFilePath().isEmpty()) {
                 listener.getLogger().println("Adding coverage results to commit status...");
 
                 String coverageResultString;
                 GHCommitState coverageState;
-                Map<String, String> envVars = Ghprb.getEnvVars(build, listener);
-                if (!envVars.containsKey("newCodeCoveragePercentage")) {
+                Double lineCoverage = getLineCoverageFromFile(build, listener);
+                if (lineCoverage != null) {
+                    NumberFormat nf = NumberFormat.getPercentInstance();
+                    nf.setMaximumFractionDigits(2);
+                    coverageResultString = nf.format(lineCoverage) + " line coverage on new code.";
+                    coverageState = lineCoverage > 0 ? GHCommitState.SUCCESS : GHCommitState.ERROR;
+                } else {
                     coverageResultString = "No coverage results found.";
                     coverageState = GHCommitState.SUCCESS;
-                } else {
-                    String newCodeCoveragePercentage = envVars.get("newCodeCoveragePercentage");
-                    coverageResultString = newCodeCoveragePercentage + "% line coverage on new code.";
-                    int coveragePercent = Integer.parseInt(newCodeCoveragePercentage);
-                    coverageState = coveragePercent > 1 ? GHCommitState.SUCCESS : GHCommitState.ERROR;
                 }
 
                 String context = Util.fixEmpty(commitStatusContext);
                 context = Ghprb.replaceMacros(build, listener, context) + " Coverage";
-                createCommitStatus(build, listener, coverageResultString, repo, coverageState, context);
+                createCommitStatus(build, listener, coverageResultString, repo, coverageState,
+                    context);
             }
         }
-
         createCommitStatus(build, listener, sb.toString(), repo, state);
+    }
+
+    public Double getLineCoverageFromFile(Run<?, ?> build, TaskListener listener) {
+        try {
+            if (build instanceof Build<?, ?>) {
+                final FilePath workspace = ((Build<?, ?>) build).getWorkspace();
+                final FilePath path = workspace.child(coverageResultFilePath);
+
+                if (path.exists()) {
+                    XPathFactory xPathFactory = XPathFactory.newInstance();
+                    XPath xPath = xPathFactory.newXPath();
+                    InputSource source = new InputSource(path.read());
+                    return (Double) xPath
+                        .evaluate("number(/coverage/@line-rate)", source, XPathConstants.NUMBER);
+                } else {
+                    listener.getLogger().println(
+                        "Didn't find coverage file in workspace at " + path.absolutize()
+                            .getRemote());
+                }
+            }
+        } catch (IOException e) {
+            listener.getLogger().println("Couldn't read coverage file at " + coverageResultFilePath);
+            e.printStackTrace(listener.getLogger());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();  // set interrupt flag
+            listener.getLogger().println("Reading coverage file at " + coverageResultFilePath + " was interrupted");
+            e.printStackTrace(listener.getLogger());
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void createCommitStatus(Run<?, ?> build,
@@ -357,8 +399,8 @@ public class GhprbSimpleStatus extends GhprbExtension implements
             return Ghprb.getDefaultValue(local, GhprbSimpleStatus.class, "getAddTestResults");
         }
 
-        public Boolean getAddCoverageResultsDefault(GhprbSimpleStatus local) {
-            return Ghprb.getDefaultValue(local, GhprbSimpleStatus.class, "getAddCoverageResults");
+        public String getCoverageResultFilePathDefault(GhprbSimpleStatus local) {
+            return Ghprb.getDefaultValue(local, GhprbSimpleStatus.class, "getCoverageResultFilePath");
         }
 
         public List<GhprbBuildResultMessage> getCompletedStatusDefault(GhprbSimpleStatus local) {

@@ -20,7 +20,7 @@ class GhprbSimpleStatusContext implements Context {
 
     Boolean addTestResults;
 
-    Boolean addCoverageResults;
+    String coverageResultFilePath;
 
     List<GhprbBuildResultMessage> completedStatus = new ArrayList<GhprbBuildResultMessage>();
 
@@ -74,10 +74,10 @@ class GhprbSimpleStatusContext implements Context {
     }
 
     /**
-     * Add the coverage results as one line if available.
+     * Get coverage result from file and display in status check if available.
      */
-    void addCoverageResults(Boolean addCoverageResults) {
-        this.addCoverageResults = addCoverageResults;
+    void coverageResultFilePath(String coverageResultFilePath) {
+        this.coverageResultFilePath = coverageResultFilePath;
     }
 
     /**

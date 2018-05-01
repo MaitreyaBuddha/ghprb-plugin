@@ -16,7 +16,7 @@ public abstract class GhprbSimpleStatusDescriptor extends GhprbExtensionDescript
 
     public abstract Boolean getAddTestResultsDefault(GhprbSimpleStatus local);
 
-    public abstract Boolean getAddCoverageResultsDefault(GhprbSimpleStatus local);
+    public abstract String coverageResultFilePath(GhprbSimpleStatus local);
 
     public abstract List<GhprbBuildResultMessage> getCompletedStatusDefault(GhprbSimpleStatus local);
 
