@@ -26,7 +26,7 @@ class GhprbExtensionContext implements Context {
                 context.triggeredStatus,
                 context.startedStatus,
                 context.addTestResults,
-                context.addCoverageResults,
+                context.coverageResultFilePath,
                 context.completedStatus
         ));
     }

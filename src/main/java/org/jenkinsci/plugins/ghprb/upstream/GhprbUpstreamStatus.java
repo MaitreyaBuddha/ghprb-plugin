@@ -36,7 +36,7 @@ public class GhprbUpstreamStatus extends BuildWrapper {
 
     private final Boolean addTestResults;
 
-    private final Boolean addCoverageResults;
+    private final String coverageResultFilePath;
 
     private final List<GhprbBuildResultMessage> completedStatus;
 
@@ -50,7 +50,7 @@ public class GhprbUpstreamStatus extends BuildWrapper {
         variables.put("ghprbStartedStatus", getStartedStatus());
         variables.put("ghprbStatusUrl", getStatusUrl());
         variables.put("ghprbAddTestResults", Boolean.toString(getAddTestResults()));
-        variables.put("ghprbAddCoverageResults", Boolean.toString(getAddCoverageResults()));
+        variables.put("ghprbCoverageResultFilePath", getCoverageResultFilePath());
 
         Map<GHCommitState, StringBuilder> statusMessages = new HashMap<GHCommitState, StringBuilder>(INITIAL_CAPACITY);
 
@@ -97,7 +97,7 @@ public class GhprbUpstreamStatus extends BuildWrapper {
             String triggeredStatus,
             String startedStatus,
             Boolean addTestResults,
-            Boolean addCoverageResults,
+            String coverageResultFilePath,
             List<GhprbBuildResultMessage> completedStatus
     ) {
         this.showMatrixStatus = showMatrixStatus;
@@ -106,7 +106,7 @@ public class GhprbUpstreamStatus extends BuildWrapper {
         this.triggeredStatus = triggeredStatus;
         this.startedStatus = startedStatus;
         this.addTestResults = addTestResults;
-        this.addCoverageResults = addCoverageResults;
+        this.coverageResultFilePath = coverageResultFilePath;
         this.completedStatus = completedStatus;
     }
 
@@ -131,8 +131,8 @@ public class GhprbUpstreamStatus extends BuildWrapper {
         return addTestResults == null ? Boolean.valueOf(false) : addTestResults;
     }
 
-    public Boolean getAddCoverageResults() {
-        return addCoverageResults == null ? Boolean.valueOf(false) : addCoverageResults;
+    public String getCoverageResultFilePath() {
+        return coverageResultFilePath == null ? "" : coverageResultFilePath;
     }
 
     public Boolean getShowMatrixStatus() {
